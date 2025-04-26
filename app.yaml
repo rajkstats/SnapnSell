@@ -1,0 +1,7 @@
+runtime: custom
+env: flex
+service: snap-and-sell
+
+env_variables:
+  # These will be overridden by the actual environment variables set in Cloud Run
+  PORT: 8080

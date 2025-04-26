@@ -135,17 +135,26 @@ with reset_col2:
         st.session_state.use_fallback = use_fallback
         st.session_state.use_api_flyer = use_api_flyer
         
-        st.experimental_rerun()
+        st.rerun()
 
 # Main app layout
 col1, col2 = st.columns([1, 1])
 
 # Upload section
 with col1:
-    st.markdown('<div class="upload-section">', unsafe_allow_html=True)
     st.markdown("### 📸 Upload Item Photo or Generate One")
     if st.session_state.use_fallback:
         st.info("⚠️ Using offline mode due to API issues. The app will work with basic functionality.")
+    
+    # Create a placeholder for the image preview
+    image_preview_placeholder = st.empty()
+    
+    # If there's no uploaded image, show the dotted border container
+    if 'uploaded_image' not in st.session_state or st.session_state.uploaded_image is None:
+        with image_preview_placeholder:
+            st.markdown('<div class="upload-section" style="height: 200px; display: flex; justify-content: center; align-items: center;"><p style="color: #666;">Your image will appear here</p></div>', unsafe_allow_html=True)
+    
+    # Tabs for upload and generate
     upload_tab, generate_tab = st.tabs(["Upload Image", "Generate Image"])
 
     with upload_tab:
@@ -157,8 +166,9 @@ with col1:
                 image_bytes = uploaded_file.getvalue()
                 image = Image.open(io.BytesIO(image_bytes))
                 
-                # Display the uploaded image
-                st.image(image, caption="Uploaded Image", use_column_width=True)
+                # Replace the dotted border with the actual image
+                with image_preview_placeholder:
+                    st.image(image, caption="Uploaded Image", use_column_width=True)
                 
                 # Store the uploaded image in session state
                 st.session_state.uploaded_image = uploaded_file
@@ -171,14 +181,14 @@ with col1:
                             st.session_state.processing = True
                             st.session_state.analysis_result = analyze_image(image, use_fallback=st.session_state.use_fallback)
                             st.session_state.processing = False
-                            st.experimental_rerun()
+                            st.rerun()
                     else:
                         # Fallback mode - use basic analysis
                         with st.spinner("🔍 Processing your image..."):
                             st.session_state.processing = True
                             st.session_state.analysis_result = estimate_price_fallback(image)
                             st.session_state.processing = False
-                            st.experimental_rerun()
+                            st.rerun()
             except Exception as e:
                 st.error(f"Error processing image: {e}")
                 print(f"Error processing uploaded image: {e}")
@@ -204,7 +214,9 @@ with col1:
                     try:
                         generated_image = generate_product_image(product_description, product_category, image_style)
                         if generated_image:
-                            st.image(generated_image, caption="Generated Product Image", use_column_width=True)
+                            # Replace the dotted border with the generated image
+                            with image_preview_placeholder:
+                                st.image(generated_image, caption="Generated Product Image", use_column_width=True)
                             
                             # Save the generated image to a BytesIO object
                             img_byte_arr = io.BytesIO()
@@ -223,11 +235,11 @@ with col1:
                                     with st.spinner("🔍 Analyzing your image with AI..."):
                                         st.session_state.analysis_result = analyze_image(generated_image, 
                                                                                        use_fallback=st.session_state.use_fallback)
-                                        st.experimental_rerun()
+                                        st.rerun()
                                 else:
                                     with st.spinner("🔍 Processing your image..."):
                                         st.session_state.analysis_result = estimate_price_fallback(generated_image)
-                                        st.experimental_rerun()
+                                        st.rerun()
                         else:
                             st.error("Failed to generate image. Please try again or use a different description.")
                     except Exception as e:
@@ -236,7 +248,7 @@ with col1:
                         import traceback
                         traceback.print_exc()
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    # No need to close the div since we're handling it differently now
 
 # Results and editing section
 with col2:
@@ -385,7 +397,7 @@ if new_api_key and st.sidebar.button("Update API Key"):
         from openai import OpenAI
         _ = OpenAI(api_key=new_api_key)
         st.sidebar.success("API key updated successfully!")
-        st.experimental_rerun()
+        st.rerun()
     except Exception as e:
         st.sidebar.error(f"Error updating API key: {e}")
 
