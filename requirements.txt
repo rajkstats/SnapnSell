@@ -1,0 +1,7 @@
+streamlit>=1.20.0
+pillow>=9.0.0
+openai>=1.0.0
+python-dotenv>=0.21.0
+numpy>=1.20.0
+requests>=2.28.0
+pyshorteners>=1.0.1
