@@ -38,3 +38,7 @@ An AI-powered second-hand listing creator that turns a single photo into a polis
 ## Technology
 
 Built with Python, Streamlit, and OpenAI Vision API.
+
+## Presentation
+
+View the project slides [here](https://docs.google.com/presentation/d/16ijHP7ScvIMycVBbfIEU6D1p6JvMBcg2N34ZkSLIby8/edit?usp=sharing).
